@@ -1,0 +1,25 @@
+---
+###############################################################
+# Title:       Docker Role                                    #
+# Author(s):   Joao Berardo                                   #
+# URL:         https://github.com/jberardo/ansible-docker     #
+###############################################################
+
+- name: Check if Docker is already installed
+  shell: "docker -v >/dev/null 2>&1;"
+  register: docker_installed
+  failed_when: docker_installed.rc >= 1
+
+- name: Install Docker
+  block:
+    - name: "copy script"
+      copy:
+        src: docker.sh
+        dest: /tmp/docker.sh
+        owner: "{{user}}"
+        group: "{{user}}"
+        mode: "u=r,g=r,o=-rwx"
+
+    - name: "execute script"
+      shell: "bash /tmp/docker.sh"
+  when: docker_installed.rc >= 1
